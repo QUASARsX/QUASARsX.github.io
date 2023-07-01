@@ -303,8 +303,8 @@
     var timer_value = document.getElementById(subject + "-" + chapter + "-video-timer").textContent;
     
     // Save them in localStorage with the keys "physics-1-progress" and "physics-1-timer"
-    localStorage.setItem(subject + "-" + chapter + "-progress", progress_value);
-    localStorage.setItem(subject + "-" + chapter + "-timer", timer_value);
+    localStorage.setItem(subject + "-" + chapter + "-progress", progress_value.toString());
+    localStorage.setItem(subject + "-" + chapter + "-timer", timer_value.toString());
   }
   
   // Add some code to load the progress data and the timer data for physics chapter 1 from localStorage
@@ -356,5 +356,45 @@
   document.getElementById("physics-1-cq").addEventListener("change", function() {
     saveProgress("physics", "1");
   });
+
+  // Add some code to save the checkbox states for physics chapter 1 in localStorage
+  function saveCheckbox(subject, chapter, type) {
+  // Get the checkbox element
+  var checkbox = document.getElementById(subject + "-" + chapter + "-" + type);
+    
+  // Save its checked state in localStorage with the key "physics-1-mcq" or "physics-1-cq"
+  localStorage.setItem(subject + "-" + chapter + "-" + type, checkbox.checked.toString());
+  }
+  
+  // Add some code to load the checkbox states for physics chapter 1 from localStorage
+  function loadCheckbox(subject, chapter, type) {
+  // Get the checkbox element
+  var checkbox = document.getElementById(subject + "-" + chapter + "-" + type);
+    
+  // Get its checked state from localStorage with the key "physics-1-mcq" or "physics-1-cq"
+  var checked = localStorage.getItem(subject + "-" + chapter + "-" + type);
+    
+  // Check if it exists
+  if (checked) {
+    // Update the checkbox checked state
+    checkbox.checked = (checked === "true");
+    }
+  }
+  
+  // Call the loadCheckbox function when the page is loaded or refreshed for both MCQ and CQ
+  window.addEventListener("load", function() {
+    loadCheckbox("physics", "1", "mcq");
+    loadCheckbox("physics", "1", "cq");
+  });
+  
+  // Call the saveCheckbox function whenever the checkbox state changes for both MCQ and CQ
+  document.getElementById("physics-1-mcq").addEventListener("change", function() {
+    saveCheckbox("physics", "1", "mcq");
+  });
+  
+  document.getElementById("physics-1-cq").addEventListener("change", function() {
+    saveCheckbox("physics", "1", "cq");
+});
+
 </script>
 </html>
