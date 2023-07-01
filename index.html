@@ -33,7 +33,7 @@
       align-items: center;
     }
     .video input {
-      width: 60px;
+      width: 53px;
     }
     .video button {
       margin-left: 10px;
@@ -51,9 +51,22 @@
     .practice {
       display: flex;
       align-items: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      margin-right: 10px;
     }
     .practice input {
       margin-right: 5px;
+    }
+    .practice button {
+      margin-left: 10px;
+      margin-right: 10px;
+      border-radius: 5px;
+      color: rgb(255, 0, 0);
+      background-color: #999999;
+    }
+     .practice button:hover {
+      background-color: #cccccc;
     }
     .progress {
       height: 20px;
@@ -83,6 +96,7 @@
         <button id="physics-1-video-start">Start</button>
         <button id="physics-1-video-pause">Pause</button>
         <button id="physics-1-video-resume">Resume</button>
+        <button id="physics-1-video-reset">Reset Video</button>
         <span id="physics-1-video-timer">00:00:00</span>
         <!-- Add a span to show a message when the video is completed -->
         <span id="physics-1-video-message"></span>
@@ -91,8 +105,10 @@
       <div class="practice">
         <label for="physics-1-mcq">MCQ:</label>
         <input type="checkbox" id="physics-1-mcq">
+        <button id="physics-1-mcq-reset">Reset MCQ</button>
         <label for="physics-1-cq">CQ:</label>
         <input type="checkbox" id="physics-1-cq">
+        <button id="physics-1-cq-reset">Reset CQ</button>
       </div>
       <!-- Create a div for the progress bar -->
       <div class="progress" id="physics-1-progress">
@@ -394,7 +410,49 @@
   
   document.getElementById("physics-1-cq").addEventListener("change", function() {
     saveCheckbox("physics", "1", "cq");
-});
+  });
 
+    // Add some code to reset the progress data and the timer data for physics chapter 1 in localStorage
+  function resetProgress(subject, chapter) {
+    // Remove the progress value and the timer value from localStorage with the keys "physics-1-progress" and "physics-1-timer"
+    localStorage.removeItem(subject + "-" + chapter + "-progress");
+    localStorage.removeItem(subject + "-" + chapter + "-timer");
+    
+    // Reset the progress value variable to zero
+    eval(subject + "_" + chapter + "_video_progress = 0");
+    
+    // Reset the progress bar width and the timer text to zero
+    var progress_bar = document.getElementById(subject + "-" + chapter + "-progress-bar");
+    var timer = document.getElementById(subject + "-" + chapter + "-video-timer");
+    progress_bar.style.width = "0%";
+    timer.textContent = "0:00";
+    
+    // Update the overall progress for the chapter, the subject and the syllabus
+    updateProgress(subject, chapter);
+  }
+    // Add some code to reset the checkbox states for physics chapter 1 in localStorage
+  function resetCheckbox(subject, chapter, type) {
+    // Remove the checked state from localStorage with the key "physics-1-mcq" or "physics-1-cq"
+    localStorage.removeItem(subject + "-" + chapter + "-" + type);
+    
+    // Reset the checkbox checked state to false
+    var checkbox = document.getElementById(subject + "-" + chapter + "-" + type);
+    checkbox.checked = false;
+    
+    // Update the overall progress for the chapter, the subject and the syllabus
+    updateProgress(subject, chapter);
+  }
+    // Add some event listeners to the buttons to call the reset functions when they are clicked
+  document.getElementById("physics-1-video-reset").addEventListener("click", function() {
+    resetProgress("physics", "1");
+  });
+  
+  document.getElementById("physics-1-mcq-reset").addEventListener("click", function() {
+    resetCheckbox("physics", "1", "mcq");
+  });
+  
+  document.getElementById("physics-1-cq-reset").addEventListener("click", function() {
+    resetCheckbox("physics", "1", "cq");
+});
 </script>
 </html>
