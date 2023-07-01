@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<head>
+  <style>
+    /* Add some style to the webpage */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      text-align: center;
+      color: white;
+      background-color: #333333;
+      padding: 20px;
+    }
+    h2 {
+      color: white;
+      background-color: #666666;
+      padding: 10px;
+    }
+    .subject {
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .chapter {
+      border: 1px dashed gray;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .video {
+      display: flex;
+      align-items: center;
+    }
+    .video input {
+      width: 60px;
+    }
+    .video button {
+      margin-left: 10px;
+      border-radius: 5px;
+      color: white;
+      background-color: #999999;
+    }
+    .video button:hover {
+      background-color: #cccccc;
+    }
+    .video span {
+      margin-left: 10px;
+      font-weight: bold;
+    }
+    .practice {
+      display: flex;
+      align-items: center;
+    }
+    .practice input {
+      margin-right: 5px;
+    }
+    .progress {
+      height: 20px;
+      background-color: lightgray;
+      border-radius: 10px;
+    }
+    .progress-bar {
+      height: 20px;
+      background-color: green;
+      width: 0%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>HSC (Science) Study Planner</h1>
+  <!-- Create a div for each subject -->
+  <div class="subject" id="physics">
+    <h2>Physics</h2>
+    <!-- Create a div for each chapter -->
+    <div class="chapter" id="physics-1">
+      <h3>Chapter 1: Introduction to Physics</h3>
+      <!-- Create a div for the video course -->
+      <div class="video">
+        <label for="physics-1-video">Video course length (hh:mm:ss):</label>
+        <input type="text" id="physics-1-video" value="00:00:00" pattern="\d{2}:\d{2}:\d{2}">
+        <button id="physics-1-video-start">Start</button>
+        <button id="physics-1-video-pause">Pause</button>
+        <button id="physics-1-video-resume">Resume</button>
+        <span id="physics-1-video-timer">00:00:00</span>
+        <!-- Add a span to show a message when the video is completed -->
+        <span id="physics-1-video-message"></span>
+      </div>
+      <!-- Create a div for the practice sheet -->
+      <div class="practice">
+        <label for="physics-1-mcq">MCQ:</label>
+        <input type="checkbox" id="physics-1-mcq">
+        <label for="physics-1-cq">CQ:</label>
+        <input type="checkbox" id="physics-1-cq">
+      </div>
+      <!-- Create a div for the progress bar -->
+      <div class="progress" id="physics-1-progress">
+        <div class="progress-bar" id="physics-1-progress-bar"></div>
+      </div>
+    </div>
+    <!-- Repeat the same structure for other chapters -->
+    <!-- You can add or remove chapters as needed -->
+  </div>
+  <!-- Repeat the same structure for other subjects -->
+  <!-- You can add or remove subjects as needed -->
+</body>
+<script>
+  // Add some JavaScript code to make the webpage interactive
+  // Define some variables to store the timer intervals and the progress values
+  var physics_1_video_interval;
+  var physics_1_video_progress = 0;
+
+  // Define some functions to handle the timer logic
+  function startTimer(subject, chapter) {
+    // Get the video length input element
+    var video_length = document.getElementById(subject + "-" + chapter + "-video");
+    // Get the video timer span element
+    var video_timer = document.getElementById(subject + "-" + chapter + "-video-timer");
+    // Get the video progress bar element
+    var video_progress_bar = document.getElementById(subject + "-" + chapter + "-progress-bar");
+    // Get the video message span element
+    var video_message = document.getElementById(subject + "-" + chapter + "-video-message");
+    
+    // Set the interval to update the timer and the progress bar every second
+    return setInterval(function() {
+      // Get the current timer value in seconds
+      var timer_value = parseInt(video_timer.textContent.slice(0,2)) * 3600 + parseInt(video_timer.textContent.slice(3,5)) * 60 + parseInt(video_timer.textContent.slice(6,8));
+      
+      // Check if the timer value is equal to or greater than the video length
+      if (timer_value >= timeToSeconds(video_length.value)) {
+        // Stop the timer and clear the interval
+        stopTimer(subject, chapter);
+        clearInterval(eval(subject + "_" + chapter + "_video_interval"));
+        
+        // Set the progress bar to 100%
+        video_progress_bar.style.width = "100%";
+        
+        // Update the progress value to 50% (half of the total progress for the chapter)
+        eval(subject + "_" + chapter + "_video_progress = 50");
+        
+        // Update the overall progress for the chapter, the subject and the syllabus
+        updateProgress(subject, chapter);
+        
+        // Show a message that the video is completed
+        video_message.textContent = "Video completed!";
+        video_message.style.color = "green";
+      } else {
+        // Increment the timer value by one second
+        timer_value++;
+        
+        // Format the timer value as hh:mm:ss
+        var hours = Math.floor(timer_value / 3600);
+        var minutes = Math.floor((timer_value % 3600) / 60);
+        var seconds = timer_value % 60;
+        if (hours < 10) {
+          hours = "0" + hours;
+        }
+        if (minutes < 10) {
+          minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+          seconds = "0" + seconds;
+        }
+        var timer_text = hours + ":" + minutes + ":" + seconds;
+                // Update the timer text
+                video_timer.textContent = timer_text;
+        
+        // Calculate the percentage of the video completed
+        var video_percentage = Math.round(timer_value / timeToSeconds(video_length.value) * 100);
+        
+        // Update the progress bar width
+        video_progress_bar.style.width = video_percentage + "%";
+        
+        // Update the progress value to half of the video percentage
+        eval(subject + "_" + chapter + "_video_progress = " + video_percentage / 2);
+        
+        // Update the overall progress for the chapter, the subject and the syllabus
+        updateProgress(subject, chapter);
+      }
+    }, 1000);
+  }
+
+  function stopTimer(subject, chapter) {
+    // Get the video timer span element
+    var video_timer = document.getElementById(subject + "-" + chapter + "-video-timer");
+    
+    // Reset the timer text to 00:00:00
+    video_timer.textContent = "00:00:00";
+  }
+
+  function pauseTimer(subject, chapter) {
+    // Clear the interval and return it
+    clearInterval(eval(subject + "_" + chapter + "_video_interval"));
+    return eval(subject + "_" + chapter + "_video_interval");
+  }
+
+  function resumeTimer(subject, chapter) {
+    // Restart the interval and return it
+    return startTimer(subject, chapter);
+  }
+
+  // Define a function to convert a time string in hh:mm:ss format to seconds
+  function timeToSeconds(time) {
+    var parts = time.split(":");
+    return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+  }
+
+  // Define some functions to handle the progress logic
+  function updateProgress(subject, chapter) {
+    // Get the progress bar elements for the chapter, the subject and the syllabus
+    var chapter_progress_bar = document.getElementById(subject + "-" + chapter + "-progress-bar");
+    var subject_progress_bar = document.getElementById(subject + "-progress-bar");
+    var syllabus_progress_bar = document.getElementById("syllabus-progress-bar");
+    
+    // Calculate the progress value for the chapter based on the video progress and the practice sheet completion
+    var chapter_progress_value = eval(subject + "_" + chapter + "_video_progress") +
+      (document.getElementById(subject + "-" + chapter + "-mcq").checked ? 25 : 0) +
+      (document.getElementById(subject + "-" + chapter + "-cq").checked ? 25 : 0);
+    
+    // Update the progress bar width for the chapter
+    chapter_progress_bar.style.width = chapter_progress_value + "%";
+    
+    // Calculate the progress value for the subject based on the average of all chapters
+    var subject_progress_value = 0;
+    var subject_chapters = document.querySelectorAll("#" + subject + " .chapter");
+    for (var i = 0; i < subject_chapters.length; i++) {
+      var chapter_id = subject_chapters[i].id;
+      subject_progress_value += eval(chapter_id.replace("-", "_") + "_video_progress") +
+      (document.getElementById(chapter_id.replace("-", "_") +"-mcq").checked ? 25 : 0) +
+      (document.getElementById(chapter_id.replace("-", "_") +"-cq").checked ? 25 : 0);
+    }
+    subject_progress_value /= subject_chapters.length;
+    
+    // Update the progress bar width for the subject
+    subject_progress_bar.style.width = subject_progress_value + "%";
+    
+    // Calculate the progress value for the syllabus based on the average of all subjects
+    var syllabus_progress_value = 0;
+    var syllabus_subjects = document.querySelectorAll(".subject");
+    for (var i = 0; i < syllabus_subjects.length; i++) {
+      var subject_id = syllabus_subjects[i].id;
+      syllabus_progress_value += parseFloat(document.getElementById(subject_id +"-progress-bar").style.width.slice(0,-1));
+    }
+    syllabus_progress_value /= syllabus_subjects.length;
+    
+    // Update the progress bar width for the syllabus
+    syllabus_progress_bar.style.width = syllabus_progress_value + "%";
+    
+  }
+
+  // Add some event listeners to the buttons and the checkboxes
+  // You can add or remove event listeners as needed
+  document.getElementById("physics-1-video-start").addEventListener("click", function() {
+    // Start the timer for physics chapter 1 and store the interval in a variable
+    physics_1_video_interval = startTimer("physics", "1");
+  });
+  
+  document.getElementById("physics-1-video-pause").addEventListener("click", function() {
+    // Pause the timer for physics chapter 1 and store the interval in a variable
+    physics_1_video_interval = pauseTimer("physics", "1");
+  });
+  
+  document.getElementById("physics-1-video-resume").addEventListener("click", function() {
+    // Resume the timer for physics chapter 1 and store the interval in a variable
+    physics_1_video_interval = resumeTimer("physics", "1");
+  });
+  
+  document.getElementById("physics-1-mcq").addEventListener("change", function() {
+    // Update the progress for physics chapter 1 when the MCQ checkbox is changed
+    updateProgress("physics", "1");
+    
+    // Check if both MCQ and CQ are completed
+    if (document.getElementById("physics-1-mcq").checked && document.getElementById("physics-1-cq").checked) {
+      // Show a message that the practice sheet is completed
+      var practice_message = document.createElement("span");
+      practice_message.textContent = "Practice sheet completed!";
+      practice_message.style.color = "green";
+      document.getElementById("physics-1").appendChild(practice_message);
+    }
+  });
+  
+  document.getElementById("physics-1-cq").addEventListener("change", function() {
+    // Update the progress for physics chapter 1 when the CQ checkbox is changed
+    updateProgress("physics", "1");
+    
+    // Check if both MCQ and CQ are completed
+    if (document.getElementById("physics-1-mcq").checked && document.getElementById("physics-1-cq").checked) {
+      // Show a message that the practice sheet is completed
+      var practice_message = document.createElement("span");
+      practice_message.textContent = "Practice sheet completed!";
+      practice_message.style.color = "green";
+      document.getElementById("physics-1").appendChild(practice_message);
+    }
+  });
+  
+</script>
+</html>
