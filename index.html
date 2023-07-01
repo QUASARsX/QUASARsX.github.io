@@ -294,5 +294,67 @@
     }
   });
   
+  // Add some code to save the progress data and the timer data for physics chapter 1 in localStorage
+    function saveProgress(subject, chapter) {
+    // Get the progress value and the timer value
+    var progress_value = eval(subject + "_" + chapter + "_video_progress") +
+      (document.getElementById(subject + "-" + chapter + "-mcq").checked ? 25 : 0) +
+      (document.getElementById(subject + "-" + chapter + "-cq").checked ? 25 : 0);
+    var timer_value = document.getElementById(subject + "-" + chapter + "-video-timer").textContent;
+    
+    // Save them in localStorage with the keys "physics-1-progress" and "physics-1-timer"
+    localStorage.setItem(subject + "-" + chapter + "-progress", progress_value);
+    localStorage.setItem(subject + "-" + chapter + "-timer", timer_value);
+  }
+  
+  // Add some code to load the progress data and the timer data for physics chapter 1 from localStorage
+  function loadProgress(subject, chapter) {
+    // Get the progress bar element and the timer span element
+    var progress_bar = document.getElementById(subject + "-" + chapter + "-progress-bar");
+    var timer = document.getElementById(subject + "-" + chapter + "-video-timer");
+    
+    // Get the progress value and the timer value from localStorage with the keys "physics-1-progress" and "physics-1-timer"
+    var progress_value = localStorage.getItem(subject + "-" + chapter + "-progress");
+    var timer_value = localStorage.getItem(subject + "-" + chapter + "-timer");
+    
+    // Check if they exist
+    if (progress_value && timer_value) {
+      // Update the progress bar width and the timer text
+      progress_bar.style.width = progress_value + "%";
+      timer.textContent = timer_value;
+      
+      // Update the progress value variable
+      eval(subject + "_" + chapter + "_video_progress = " + progress_value);
+      
+      // Update the overall progress for the chapter, the subject and the syllabus
+      updateProgress(subject, chapter);
+    }
+  }
+  
+  // Call the loadProgress function when the page is loaded or refreshed
+  window.addEventListener("load", function() {
+    loadProgress("physics", "1");
+  });
+  
+  // Call the saveProgress function whenever the progress value or the timer value changes
+  document.getElementById("physics-1-video-start").addEventListener("click", function() {
+    saveProgress("physics", "1");
+  });
+  
+  document.getElementById("physics-1-video-pause").addEventListener("click", function() {
+    saveProgress("physics", "1");
+  });
+  
+  document.getElementById("physics-1-video-resume").addEventListener("click", function() {
+    saveProgress("physics", "1");
+  });
+  
+  document.getElementById("physics-1-mcq").addEventListener("change", function() {
+    saveProgress("physics", "1");
+  });
+  
+  document.getElementById("physics-1-cq").addEventListener("change", function() {
+    saveProgress("physics", "1");
+  });
 </script>
 </html>
