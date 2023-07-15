@@ -20,9 +20,9 @@
       width: 100%;
       margin: 10px;
       padding-top: 10px;
-      padding-left: 15px;
-      padding-right: 15px;
-      padding-bottom: 15px;
+      padding-left: 40px;
+      padding-right: 40px;
+      padding-bottom: 50px;
       background-color: #222;
       border-radius: 5px;
       box-sizing: border-box;
@@ -85,7 +85,7 @@
     .video-container {
       position: relative;
       width: 100%;
-      padding-top: 56.25%;
+      padding-top: 44%;
       margin-top: 20px;
     }
 
@@ -97,6 +97,14 @@
       height: 100%;
       border: none;
     }
+
+    .control-buttons {
+      margin-top: 10px;
+    }
+
+    .control-buttons button {
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
@@ -107,15 +115,40 @@
     </div>
     <button onclick="playVideo()">Play</button>
     <div class="video-container">
-      <iframe id="video-player" src="" frameborder="0" allowfullscreen></iframe>
+      <div id="player"></div>
+    </div>
+    <div class="control-buttons">
+      <button onclick="pauseVideo()">Pause</button>
+      <button onclick="resumeVideo()">Resume</button>
+      <button onclick="toggleFullscreen()">Fullscreen</button>
     </div>
   </div>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
+    var player;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          controls: 1
+        },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready to receive commands
+    }
+
     function playVideo() {
       var input = document.getElementById("video-link").value;
-      var videoPlayer = document.getElementById("video-player");
-      videoPlayer.src = "https://www.youtube.com/embed/" + getYouTubeVideoId(input);
+      var videoId = getYouTubeVideoId(input);
+      player.loadVideoById(videoId);
     }
 
     function getYouTubeVideoId(url) {
@@ -130,6 +163,33 @@
       }
 
       return videoId;
+    }
+
+    function pauseVideo() {
+      if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+      }
+    }
+
+    function resumeVideo() {
+      if (player && player.getPlayerState() === YT.PlayerState.PAUSED) {
+        player.playVideo();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (player) {
+        var iframe = player.getIframe();
+        if (iframe.requestFullscreen) {
+          iframe.requestFullscreen();
+        } else if (iframe.mozRequestFullScreen) { /* Firefox */
+          iframe.mozRequestFullScreen();
+        } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+          iframe.webkitRequestFullscreen();
+        } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+          iframe.msRequestFullscreen();
+        }
+      }
     }
   </script>
 </body>
