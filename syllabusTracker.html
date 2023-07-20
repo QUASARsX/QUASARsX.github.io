@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+  h1 {
+    text-align: center;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    color: #ff6600;
+  }
+
+  table {
+    width: 100%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+  }
+
+  td {
+    border: 1px solid #ff6600;
+    padding: 10px;
+  }
+
+  .progress-bar {
+    box-sizing: content-box;
+    position: relative;
+    border-radius: 5px;
+    height: 20px;
+    background-color: #ff6600;
+    width: 0;
+    transition: all .3s linear;
+  }
+
+  .subject {
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .paper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checkbox-label input:checked + label{
+    color: rgb(255, 80, 0);
+    font-style: italic;
+    text-decoration: line-through;
+  }
+
+  .progress-percent {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+  }
+</style>
+
+<script>
+  // Function to initialize the checkboxes as unchecked and set up event listeners
+  function initializeCheckboxes() {
+    var checkboxes = document.getElementsByTagName("input");
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = false;
+      checkboxes[i].addEventListener("change", function() {
+        var subject = this.closest(".subject-row").id;
+        updateProgress(subject);
+        saveCheckboxStates();
+      });
+    }
+    loadCheckboxStates();
+    updateTotal();
+  }
+
+  // This function updates the progress bar and percentage based on the checked boxes
+  function updateProgress(subject) {
+    var row = document.getElementById(subject);
+    var paper1Progress = row.querySelector(".progress-bar-1");
+    var paper1Percent = row.querySelector(".progress-percent-1");
+    var paper1Checkboxes = row.querySelectorAll(".paper-1 input[type='checkbox']");
+    var paper2Progress = row.querySelector(".progress-bar-2");
+    var paper2Percent = row.querySelector(".progress-percent-2");
+    var paper2Checkboxes = row.querySelectorAll(".paper-2 input[type='checkbox']");
+    
+    var paper1Checked = 0;
+    for (var i = 0; i < paper1Checkboxes.length; i++) {
+      if (paper1Checkboxes[i].checked) {
+        paper1Checked++;
+      }
+    }
+    var paper1NewPercent = Math.round((paper1Checked / paper1Checkboxes.length) * 100);
+    paper1Progress.style.width = paper1NewPercent + "%";
+    paper1Percent.innerHTML = paper1NewPercent + "%";
+    
+    var paper2Checked = 0;
+    for (var i = 0; i < paper2Checkboxes.length; i++) {
+      if (paper2Checkboxes[i].checked) {
+        paper2Checked++;
+      }
+    }
+    var paper2NewPercent = Math.round((paper2Checked / paper2Checkboxes.length) * 100);
+    paper2Progress.style.width = paper2NewPercent + "%";
+    paper2Percent.innerHTML = paper2NewPercent + "%";
+    
+    updateTotal();
+  }
+
+  // This function updates the total completion based on all the subjects
+  function updateTotal() {
+    var totalProgress = document.getElementById("total-progress");
+    var totalPercent = 0;
+    var totalSubjects = 0;
+
+    var subjectRows = document.getElementsByClassName("subject-row");
+    for (var i = 0; i < subjectRows.length; i++) {
+      var paper1Progress = subjectRows[i].querySelector(".progress-bar-1");
+      var paper1Percent = parseInt(paper1Progress.style.width) || 0;
+      totalPercent += paper1Percent;
+
+      var paper2Progress = subjectRows[i].querySelector(".progress-bar-2");
+      var paper2Percent = parseInt(paper2Progress.style.width) || 0;
+      totalPercent += paper2Percent;
+
+      totalSubjects += 2;
+    }
+
+    var avgPercent = Math.round(totalPercent / totalSubjects);
+    totalProgress.style.width = avgPercent + "%";
+    totalProgress.nextElementSibling.innerHTML = avgPercent + "%";
+    localStorage.setItem("total-progress", avgPercent);
+  }
+
+  // Function to save the checkbox states to local storage as JSON
+  function saveCheckboxStates() {
+    var checkboxes = document.getElementsByTagName("input");
+    var checkboxStates = {};
+    for (var i = 0; i < checkboxes.length; i++) {
+      var checkbox = checkboxes[i];
+      var subject = checkbox.closest(".subject-row").id;
+      var paper = checkbox.closest(".paper").classList.contains("paper-1") ? "paper-1" : "paper-2";
+      var checkboxKey = subject + "-" + paper + "-" + i;
+      checkboxStates[checkboxKey] = checkbox.checked;
+    }
+    localStorage.setItem("checkboxStates", JSON.stringify(checkboxStates));
+  }
+
+  // Function to load the checkbox states and progress bar state from local storage
+  function loadCheckboxStates() {
+    var checkboxStates = localStorage.getItem("checkboxStates");
+    if (checkboxStates) {
+      checkboxStates = JSON.parse(checkboxStates);
+      var checkboxes = document.getElementsByTagName("input");
+      for (var i = 0; i < checkboxes.length; i++) {
+        var checkbox = checkboxes[i];
+        var subject = checkbox.closest(".subject-row").id;
+        var paper = checkbox.closest(".paper").classList.contains("paper-1") ? "paper-1" : "paper-2";
+        var checkboxKey = subject + "-" + paper + "-" + i;
+        var checkboxValue = checkboxStates[checkboxKey];
+        if (checkboxValue === true) {
+          checkbox.checked = true;
+        }
+      }
+    }
+  
+  // Load total progress from local storage and update the progress bars
+  var totalProgress = localStorage.getItem("total-progress");
+    if (totalProgress) {
+      var totalProgressElement = document.getElementById("total-progress");
+      totalProgressElement.style.width = totalProgress + "%";
+      totalProgressElement.nextElementSibling.innerHTML = totalProgress + "%";
+
+      // Update individual subject progress bars
+      var subjectRows = document.getElementsByClassName("subject-row");
+      for (var i = 0; i < subjectRows.length; i++) {
+        var paper1Progress = subjectRows[i].querySelector(".progress-bar-1");
+        var paper1Percent = subjectRows[i].querySelector(".progress-percent-1");
+        var paper2Progress = subjectRows[i].querySelector(".progress-bar-2");
+        var paper2Percent = subjectRows[i].querySelector(".progress-percent-2");
+
+        var paper1Checkboxes = subjectRows[i].querySelectorAll(".paper-1 input[type='checkbox']");
+        var paper1Checked = 0;
+        for (var j = 0; j < paper1Checkboxes.length; j++) {
+          if (paper1Checkboxes[j].checked) {
+            paper1Checked++;
+          }
+        }
+        var paper1NewPercent = Math.round((paper1Checked / paper1Checkboxes.length) * 100);
+        paper1Progress.style.width = paper1NewPercent + "%";
+        paper1Percent.innerHTML = paper1NewPercent + "%";
+
+        var paper2Checkboxes = subjectRows[i].querySelectorAll(".paper-2 input[type='checkbox']");
+        var paper2Checked = 0;
+        for (var j = 0; j < paper2Checkboxes.length; j++) {
+          if (paper2Checkboxes[j].checked) {
+            paper2Checked++;
+          }
+        }
+        var paper2NewPercent = Math.round((paper2Checked / paper2Checkboxes.length) * 100);
+        paper2Progress.style.width = paper2NewPercent + "%";
+        paper2Percent.innerHTML = paper2NewPercent + "%";
+      }
+    }
+  }
+
+  // Add an event listener to the window to initialize the checkboxes on load
+  window.addEventListener("load", initializeCheckboxes);
+
+</script>
+
+</head>
+<body>
+<h1>Syllabus Tracker with Checkbox and Progressbar</h1>
+<table>
+<tr>
+<td style="background-color: #ffff99;"><b>Subject/Paper</b></td>
+<td style="background-color: #ffff99;"><b>Chapters/Topics</b></td>
+<td style="background-color: #ffff99;"><b>Progress Bar (0-100)%</b></td>
+<td style="background-color: #ffff99;"><b>Subject/Paper</b></td>
+<td style="background-color: #ffff99;"><b>Chapters/Topics</b></td>
+<td style="background-color: #ffff99;"><b>Progress Bar (0-100)%</b></td>
+</tr>
+<tr class="subject-row" id="physics">
+  <td class="subject">Physics-1</td>
+  <td class="paper paper-1">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 2: Vector </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 7: Structural Principle of Matter </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 8: Continuous Motion </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 10: Ideal Gas and Kinetic Theory  </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-1"></div><span class="progress-percent-1"></span>
+  </td>
+  <td class="subject">Physics-2</td>
+  <td class="paper paper-2">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 2: Static Electricity </label></div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 7: Physical Optics </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 9: Atomic Structure and Nuclear Physics </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 10: Semiconductor and Electronics </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-2"></div><span class="progress-percent-2"></span>
+  </td>
+</tr>
+<tr class="subject-row" id="chemistry">
+  <td class="subject">Chemistry-1</td>
+  <td class="paper paper-1">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 2: Qualitative Chemistry </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 4: Chemical Change </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 5: Applied Chemistry </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-1"></div><span class="progress-percent-1"></span>
+  </td>
+  <td class="subject">Chemistry-2</td>
+  <td class="paper paper-2">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 1: Environmental Chemistry </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 3: Quantitative Chemistry </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 4: Electrochemistry </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-2"></div><span class="progress-percent-2"></span>
+  </td>
+</tr>
+<tr class="subject-row" id="maths">
+  <td class="subject">Mathematics-1</td>
+  <td class="paper paper-1">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 1: Matrix </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 4: Circle </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 7: Trigonometry </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 9: Differentiation </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-1"></div><span class="progress-percent-1"></span>
+  </td>
+  <td class="subject">Mathematics-2</td>
+  <td class="paper paper-2">
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 3: Complex Numbers </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 4: Polynomial </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 6: Conics </label> </div>
+    <div class="checkbox-label"><input type="checkbox"> <label> Chapter 7: Inverse Trigonometry </label> </div>
+  </td>
+  <td>
+    <div class="progress-bar progress-bar-2"></div><span class="progress-percent-2"></span>
+  </td>
+</tr>
+<tr>
+  <td style="background-color: #ffff99;" colspan="1"><b>Total Completion</b></td>
+  <td colspan="5">
+    <div class="progress-bar" id="total-progress"></div><span></span>
+  </td>
+</tr>
+</table>
+</body>
+<footer style="color: #ff6600;" ><p><b>Credit: Bing + ChatGPT 3.5 and Md Hasibul Islam</b></p></footer>
+</html>
