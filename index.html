@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-
   h1 {
     text-align: center;
     font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -70,6 +69,36 @@
     font-style: italic;
     text-decoration: line-through;
   }
+  /* Add media queries for smaller screens */
+  @media screen and (max-width: 600px) {
+  /* Adjust font size and margins for smaller screens */
+  h1 {
+    font-size: 24px;
+    margin: 10px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  td {
+    padding: 5px;
+  }
+
+  .checkbox-label label {
+    font-size: 10px;
+  }
+
+  /* Adjust the number of columns for smaller screens */
+  td {
+    width: 50%;
+  }
+
+  /* Center the progress bar on smaller screens */
+  .progress {
+    margin: 10px auto;
+  }
+}
 
 </style>
 
