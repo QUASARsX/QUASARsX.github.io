@@ -5,4 +5,5 @@ The website mainly covers the following subjects:
   2. Chemistry
   3. Math and
   4. Biology
+
 NOTE: If you are going to use it on a mobile device, consider turning on 'desktop mode' on your browser.
